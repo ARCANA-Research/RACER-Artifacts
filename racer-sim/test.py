@@ -1,7 +1,7 @@
 from src import hardware
 import sys
 
-chip = hardware.Chip(64,64,'./cost/updatedOperationCosts.csv', './cost/cmosExample.csv')
+chip = hardware.Chip(64,64,'../racer-sim/cost/updatedOperationCosts.csv', '../racer-sim/cost/cmosExample.csv')
 chip.reset()
 multithread = 1
 if(len(sys.argv) > 2):

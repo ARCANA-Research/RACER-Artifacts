@@ -1,0 +1,106 @@
+/*
+This microkernel converts 4096 128x128 RGB images into grayscale images
+
+1) Constant Vector Data Layout:
+   Assume the constant for R layer is Rc = 0.3 an is stored in vector 0
+   RACER stores it as:
+   v0
+   0.3
+   0.3
+   .
+   .
+   .
+   0.3
+
+2) Image Data Layout:
+   For simplicity sake, we assume normal vectorize layout (this can change to Z-format
+   if need)
+
+          R       G       B
+   I = [r0 r1] [g0 g1] [b0 b1]
+       [r2 r3] [g2 g3] [b2 b3]
+   RACER stores it as:
+   v5 v4 v3
+   b0 g0 r0
+   b1 g1 r1
+   b2 g2 r2
+   b3 g3 r3
+*/
+
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) Grayscale value is calculated with the luminance equation:
+      0.3 x R + 0.59 x G + 0.11 x B
+  (*) Because this is an element-wise operation, the output format is the same as the
+      input format
+  (*) Turn on all 4096 clusters to convert 4096 images (1 cluster per image)
+  (*) Each cluster turns on 7 compute units. This is because:
+      With capacity of 64 vectors:
+        - 3 vectors store the constants (64 - 3 = 61)
+        - 20 vectors store intermediate values (61 - 20 = 41)
+        - Each output requires 3 input, total of 4 (41 / 4 = 10)
+        -> 10 vectors storing output, each has 64 bits (10 * 64 = 640)
+        -> One compute unit can perform 4 MAC16 in parallel (640 * 4 = 2560)
+        - Each image is 16384 (128x128) bits so need 7 compute unit (16384 / 2560 = 6.4)
+*/
+
+SETBULK 0 4096 64
+SETBULK 1 4096 64
+SETBULK 2 4096 64
+SETBULK 3 4096 64
+SETBULK 4 4096 64
+SETBULK 5 4096 64
+SETBULK 6 4096 64
+
+// 6 <- 3 4 5
+MAC16 h0v6 b0v3 b0v0 4
+MAC16 h0v6 b0v4 b0v1 4
+MAC16 h0v6 b0v5 b0v2 4
+
+// 10 <- 9 8 7
+MAC16 h0v10 b0v7 b0v0 4
+MAC16 h0v10 b0v8 b0v1 4
+MAC16 h0v10 b0v9 b0v2 4
+
+// 14 <- 13 12 11
+MAC16 h0v14 b0v11 b0v0 4
+MAC16 h0v14 b0v12 b0v1 4
+MAC16 h0v14 b0v13 b0v2 4
+
+// 18 <- 17 16 15
+MAC16 h0v18 b0v15 b0v0 4
+MAC16 h0v18 b0v16 b0v1 4
+MAC16 h0v18 b0v17 b0v2 4
+
+// 22 <- 21 20 19
+MAC16 h0v22 b0v19 b0v0 4
+MAC16 h0v22 b0v20 b0v1 4
+MAC16 h0v22 b0v21 b0v2 4
+
+// 26 <- 25 24 23
+MAC16 h0v26 b0v23 b0v0 4
+MAC16 h0v26 b0v24 b0v1 4
+MAC16 h0v26 b0v25 b0v2 4
+
+// 30 <- 29 28 27
+MAC16 h0v30 b0v27 b0v0 4
+MAC16 h0v30 b0v18 b0v1 4
+MAC16 h0v30 b0v19 b0v2 4
+
+// 34 <- 33 32 31
+MAC16 h0v34 b0v31 b0v0 4
+MAC16 h0v34 b0v32 b0v1 4
+MAC16 h0v34 b0v33 b0v2 4
+
+// 38 <- 37 36 35
+MAC16 h0v38 b0v35 b0v0 4
+MAC16 h0v38 b0v36 b0v1 4
+MAC16 h0v38 b0v37 b0v2 4
+
+
+// 42 <- 41 40 39
+MAC16 h0v42 b0v39 b0v0 4
+MAC16 h0v42 b0v40 b0v1 4
+MAC16 h0v42 b0v41 b0v2 4
+
+UNSETALL
