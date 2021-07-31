@@ -1,6 +1,0 @@
-IMPORT ./programs-1024/pagerank/step1.rc
-IMPORT ./programs-1024/pagerank/step2.rc
-IMPORT ./programs-1024/pagerank/step3.rc
-IMPORT ./programs-1024/pagerank/step4.rc
-IMPORT ./programs-1024/pagerank/step5.rc
-IMPORT ./programs-1024/pagerank/step6.rc

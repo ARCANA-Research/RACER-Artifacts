@@ -5,27 +5,27 @@ This is the main file for the LeNet-5 Convolutional Neural Network
 */
 
 // CONV1 =======================================================================
-IMPORT ../programs/4096/cnn/lenet5/conv1.rc
-//IMPORT ../programs/4096/cnn/lenet5/conv1topool1.rc
+IMPORT ../../programs/4096/cnn/lenet5/conv1.rc
+//IMPORT ../../programs/4096/cnn/lenet5/conv1topool1.rc
 // POOL1 =======================================================================
-//IMPORT ../programs/4096/cnn/lenet5/pool1.rc
+//IMPORT ../../programs/4096/cnn/lenet5/pool1.rc
 // RELU1 =======================================================================
-//IMPORT ../programs/4096/cnn/lenet5/relu1.rc
-//IMPORT ../programs/4096/cnn/lenet5/relu1toconv2.rc
+//IMPORT ../../programs/4096/cnn/lenet5/relu1.rc
+//IMPORT ../../programs/4096/cnn/lenet5/relu1toconv2.rc
 // CONV2 =======================================================================
-IMPORT ../programs/4096/cnn/lenet5/conv2.rc
-//IMPORT ../programs/4096/cnn/lenet5/conv2topool2.rc
+IMPORT ../../programs/4096/cnn/lenet5/conv2.rc
+//IMPORT ../../programs/4096/cnn/lenet5/conv2topool2.rc
 
 // POOL2 =======================================================================
-//IMPORT ../programs/4096/cnn/lenet5/pool2.rc
+//IMPORT ../../programs/4096/cnn/lenet5/pool2.rc
 // RELU2 =======================================================================
-//IMPORT ../programs/4096/cnn/lenet5/relu2.rc
-//IMPORT ../programs/4096/cnn/lenet5/relu2toconv3.rc
+//IMPORT ../../programs/4096/cnn/lenet5/relu2.rc
+//IMPORT ../../programs/4096/cnn/lenet5/relu2toconv3.rc
 // CONV3 =======================================================================
-IMPORT ../programs/4096/cnn/lenet5/conv3.rc
-//IMPORT ../programs/4096/cnn/lenet5/conv3tofc1.rc
+IMPORT ../../programs/4096/cnn/lenet5/conv3.rc
+//IMPORT ../../programs/4096/cnn/lenet5/conv3tofc1.rc
 // FC1 =========================================================================
-IMPORT ../programs/4096/cnn/lenet5/fc1.rc
-//IMPORT ../programs/4096/cnn/lenet5/fc1tofc2.rc
+IMPORT ../../programs/4096/cnn/lenet5/fc1.rc
+//IMPORT ../../programs/4096/cnn/lenet5/fc1tofc2.rc
 // FC2 =========================================================================
-IMPORT ../programs/4096/cnn/lenet5/fc2.rc
+IMPORT ../../programs/4096/cnn/lenet5/fc2.rc

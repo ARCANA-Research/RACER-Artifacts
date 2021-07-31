@@ -1,6 +1,0 @@
-/*
-*/
-SETBULK 8212 16 64
-
-4MAXMIN8 x x x x x 5 5
-UNSETALL

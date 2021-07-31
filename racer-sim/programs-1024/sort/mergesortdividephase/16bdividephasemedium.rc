@@ -1,5 +1,0 @@
-// Sort 4096 sets of 10 elements
-
-SETBULK 0 4096 64
-BINSORT16 x x x 100 4
-UNSETALL

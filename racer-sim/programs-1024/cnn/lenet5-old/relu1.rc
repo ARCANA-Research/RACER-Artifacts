@@ -1,9 +1,0 @@
-/*
-This is the relu layer #1 for the LeNet-5 CNN.
-(*) There are 18 vectors per multiword needed to be Relu'ed
-*/
-
-SETBULK 4148 6 64
-SETBULK 4149 6 64
-RELU8 x x 11 8
-UNSETALL
