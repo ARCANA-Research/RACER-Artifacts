@@ -1,0 +1,58 @@
+/*
+This microkernel shift the brightness value of 4096 128x128 images by a fix constant
+and also clip the value to stay within the 0 to 255 range
+
+1) Image Layout:
+I = [a b c d]
+    [d e f g]
+    [h i j k]
+    [l m n o]
+
+RACER stores the I as:
+v3 v2 v1 v0
+a  b  c  d
+e  f  g  h
+    .
+    .
+    .
+*/
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) This is an element-wise microkernel.
+  (*) Each cluster turns on compute unit. This is because:
+      With capacity of 64 vectors:
+        - 7 vectors store intermediate values (64 - 7 = 57)
+        - 1 vector store the shift constant (57 - 1 = 56)
+        - 1 vector store all "0" (56 - 1 = 55)
+        - 1 vector store all "255" (55 - 1 = 54)
+        - Each output requires 2 inputs, 1 intermediate addition result,
+        1 decider, total of 5 (54 / 5 = 10)
+        - 10 vectors storing outputs, each has 64 bits (10 * 64 = 640)
+        -> One compute unit can perform 4 ADD and MAXMIN in parallel (640 * 4 = 2560)
+        - Each image is 16384 (128x128) bits so need 7 compute units (16384 / 2560 = 7)
+   (*) The output format is the same as the input format
+   (*) The last argument of all compute instruction is a simulated-level argument,
+    and it represents an energy multiplicative factor. Because a multiword can
+    be broken down into multiple compute engine doing the same thing, the multiplicative
+    factor is a quick way to calculate the energy consumption of multiple engines.
+    Because all engines operate in parallel, there is not equivalent factor for latency.
+*/
+
+SETBULK 0 1024 64
+SETBULK 1 1024 64
+SETBULK 2 1024 64
+SETBULK 3 1024 64
+SETBULK 4 1024 64
+SETBULK 5 1024 64
+SETBULK 6 1024 64
+
+// Shift all pixels by fixed constant first
+ADD16 x x x 10 4
+
+// Clip at 255
+2MAXMIN16 x x x 10 4
+
+// Clip at 0
+2MAXMIN16 x x x 10 4
+
+UNSETALL

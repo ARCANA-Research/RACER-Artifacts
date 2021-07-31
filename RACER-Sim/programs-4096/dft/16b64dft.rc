@@ -1,0 +1,52 @@
+/*
+Each engine can store 18 elements of the matrix, so 1 multiwords can store 72
+elements
+
+(*) A single 64-bit vector SHIFT (latch into buffer, latch from buffer) has a
+    cost of (taken from device-level simulation of a LATCH operation):
+       - Latency = 2 x 5.281 = 10.562 (ns)
+       - Energy  = 2 x 1.6384 = 3.2768 (pJ)
+    The SHIFT cost can be calculated accordingly
+
+(*) 1 LLOAD cost:
+       - Latency = 2 COPY (NOR) + 64 READ burst + 64 WRITE + 64 Cluster Wire Delay
+                     = 2 x 2.6405 + 64 x 2.64 + 64 x 2.64 + 64 x 1.438
+                     = 435.233 (ns)
+       - Energy  = Load Latency x Total Power
+                     = 435233 (ps) x 0.0079 (W)
+                     = 3438.3 (pJ)
+
+*/
+
+SETBULK 0 4096 64
+SETBULK 1 4096 64
+
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+MAC16 x x x 4
+
+UNSETALL
+
+SETBULK 0 1 1
+PROP 1024 12582912
+UNSETALL
+
+SETBULK 0 4096 64
+SETBULK 1 4096 64
+ADD16 x x x 4 1
+UNSETALL

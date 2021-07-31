@@ -1,0 +1,15 @@
+/*
+Simply move data from multiwords 49 50 51(from pooling layer) to 52 53 54
+(*) There are 5 outputs from each multiword -> moves 5 times
+*/
+SETBULK 0 1 1
+// 0
+SHIFT 435.233 20629.8
+// 1
+SHIFT 435.233 20629.8
+// 2
+SHIFT 435.233 20629.8
+// 3
+SHIFT 435.233 20629.8
+// 4
+SHIFT 435.233 20629.8

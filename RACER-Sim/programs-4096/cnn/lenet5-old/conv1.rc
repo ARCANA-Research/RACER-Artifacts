@@ -1,0 +1,99 @@
+/*
+This is the convolutional layer #1 for the LeNet-5 CNN.
+
+(*) The layer has 6 5x5 kernels, with stride = 1
+(*) Input Dim: 32x32x1 Output Dim: 28x28x6
+(*) The resolution is 4-bit input, 8-bit output
+(*) Input and output is vectorized and is stored on a single row of a vector in
+    RAPID -> By construction the kernel has batch size of 64
+(*) Each compute unit engine (8 tiles) can produce 1 outputs because:
+    - 12 vectors store intermediate values (64 - 12 = 52)
+    - 25 vectors store the weights of 1 kernel (52 - 25 = 27)
+    - Let number of outputs be n
+    - Each output requires 25 inputs distributed over 5 rows
+    - In total, n output requires 5(n + 4) inputs (n + 4 per row for 5 rows)
+    -> n = 1
+    - Each multiword can handle 4 compute units, (8 x 1 = 8)
+    - The total output is 28x28 = 784
+    -> It requires 784 / 8 = 98 multiwords
+    -> Employs 2 clusters, activating 49 multiwords each (for 1 kernel)
+    - There are 6 kernels
+    -> 12 clusters working in parallel
+*/
+
+SETBULK 0 12 64
+SETBULK 1 12 64
+SETBULK 2 12 64
+SETBULK 3 12 64
+SETBULK 4 12 64
+SETBULK 5 12 64
+SETBULK 6 12 64
+SETBULK 7 12 64
+SETBULK 8 12 64
+SETBULK 9 12 64
+SETBULK 10 12 64
+SETBULK 11 12 64
+SETBULK 12 12 64
+SETBULK 13 12 64
+SETBULK 14 12 64
+SETBULK 15 12 64
+SETBULK 16 12 64
+SETBULK 17 12 64
+SETBULK 18 12 64
+SETBULK 19 12 64
+SETBULK 20 12 64
+SETBULK 21 12 64
+SETBULK 22 12 64
+SETBULK 23 12 64
+SETBULK 24 12 64
+SETBULK 25 12 64
+SETBULK 26 12 64
+SETBULK 27 12 64
+SETBULK 28 12 64
+SETBULK 29 12 64
+SETBULK 30 12 64
+SETBULK 31 12 64
+SETBULK 32 12 64
+SETBULK 33 12 64
+SETBULK 34 12 64
+SETBULK 35 12 64
+SETBULK 36 12 64
+SETBULK 37 12 64
+SETBULK 38 12 64
+SETBULK 39 12 64
+SETBULK 40 12 64
+SETBULK 41 12 64
+SETBULK 42 12 64
+SETBULK 43 12 64
+
+MAC8 h0v42 b0v21 b0v0 8
+MAC8 h0v42 b0v22 b0v1 8
+MAC8 h0v42 b0v23 b0v2 8
+MAC8 h0v42 b0v24 b0v3 8
+MAC8 h0v42 b0v25 b0v4 8
+
+MAC8 h0v42 b0v21 b0v5 8
+MAC8 h0v42 b0v22 b0v6 8
+MAC8 h0v42 b0v23 b0v7 8
+MAC8 h0v42 b0v24 b0v8 8
+MAC8 h0v42 b0v25 b0v9 8
+
+MAC8 h0v42 b0v21 b0v10 8
+MAC8 h0v42 b0v22 b0v11 8
+MAC8 h0v42 b0v23 b0v12 8
+MAC8 h0v42 b0v24 b0v13 8
+MAC8 h0v42 b0v25 b0v14 8
+
+MAC8 h0v42 b0v21 b0v15 8
+MAC8 h0v42 b0v22 b0v16 8
+MAC8 h0v42 b0v23 b0v17 8
+MAC8 h0v42 b0v24 b0v18 8
+MAC8 h0v42 b0v25 b0v19 8
+
+MAC8 h0v42 b0v21 b0v20 8
+MAC8 h0v42 b0v22 b0v21 8
+MAC8 h0v42 b0v23 b0v22 8
+MAC8 h0v42 b0v24 b0v23 8
+MAC8 h0v42 b0v25 b0v24 8
+
+UNSETALL

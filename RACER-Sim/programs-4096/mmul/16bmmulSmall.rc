@@ -1,0 +1,99 @@
+/*
+This microkernel perform a single 16-bit matrix-matrix multiply with dimension (64,5) = (6,5) x (64,6)
+The most optimal way to perform 1 mmul per compute unit is to
+exclusively use MAC (no data transfer)
+
+For C = A x B with:
+
+         m
+    < ------ >
+C = [c0 c1 c2] ^
+    [c3 c4 c5] | n
+    [c6 c7 c8] v
+
+         k
+    < ------ >
+A = [a0 a1 a2] ^
+    [a3 a4 a5] | n
+    [a6 a7 a8] v
+
+         m
+    < ------ >
+B = [b0 b1 b2] ^
+    [b3 b4 b5] | k
+    [b6 b7 b8] v
+
+c0 = a0b0 + a1b3 + a2b6
+c1 = a0b1 + a1b4 + a2b7
+c2 = a0b2 + a1b5 + a2b8
+
+c3 = a3b0 + a4b3 + a5b6
+c4 = a3b1 + a4b4 + a5b7
+c5 = a3b2 + a4b5 + a5b8
+
+c6 = a6b0 + a7b3 + a8b6
+c7 = a6b1 + a7b4 + a8b7
+c8 = a6b2 + a7b5 + a8b8
+
+RACER stores a row of output C as a 64-vector (standard vectorize format)
+*/
+
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) By construction, m = 64
+  (*) A column of C need a unique column of B
+  (*) Each compute unit can perform mmul with dimension (64,5) = (6,5) x (64,6). This is
+      because:
+      With capacity of 64 vectors:
+        - 20 vectors store intermediate values (64 - 20 = 44)
+        - Each output vector requires unique k A-vectors
+        - The entire computation reuse k B-vectors
+        -> k vectors store B-vectors (44 - k)
+        - Each output vector require k unique A-vectors, total of k + 1
+        -> Total output n = (44 - k) / (k + 1)
+        - Optimize for n and k so that n = k
+        -> n = 5, k = 6
+*/
+
+SETBULK 0 1 1
+
+// 12 <- 11 10 9 8 7 6
+MAC16 h0v12 b0v0 b0v6 1
+MAC16 h0v12 b0v1 b0v7 1
+MAC16 h0v12 b0v2 b0v8 1
+MAC16 h0v12 b0v3 b0v9 1
+MAC16 h0v12 b0v4 b0v10 1
+MAC16 h0v12 b0v5 b0v11 1
+
+// 19 <- 18 17 16 15 14 13
+MAC16 h0v19 b0v0 b0v13 1
+MAC16 h0v19 b0v1 b0v14 1
+MAC16 h0v19 b0v2 b0v15 1
+MAC16 h0v19 b0v3 b0v16 1
+MAC16 h0v19 b0v4 b0v17 1
+MAC16 h0v19 b0v5 b0v18 1
+
+// 26 <- 25 24 23 22 21 20
+MAC16 h0v26 b0v0 b0v20 1
+MAC16 h0v26 b0v1 b0v21 1
+MAC16 h0v26 b0v2 b0v22 1
+MAC16 h0v26 b0v3 b0v23 1
+MAC16 h0v26 b0v4 b0v24 1
+MAC16 h0v26 b0v5 b0v25 1
+
+// 33 <- 32 31 30 29 28 27
+MAC16 h0v33 b0v0 b0v27 1
+MAC16 h0v33 b0v1 b0v28 1
+MAC16 h0v33 b0v2 b0v29 1
+MAC16 h0v33 b0v3 b0v30 1
+MAC16 h0v33 b0v4 b0v31 1
+MAC16 h0v33 b0v5 b0v32 1
+
+// 40 <- 39 38 37 36 35 34
+MAC16 h0v40 b0v0 b0v34 1
+MAC16 h0v40 b0v1 b0v35 1
+MAC16 h0v40 b0v2 b0v36 1
+MAC16 h0v40 b0v3 b0v37 1
+MAC16 h0v40 b0v4 b0v38 1
+MAC16 h0v40 b0v5 b0v39 1
+UNSETALL

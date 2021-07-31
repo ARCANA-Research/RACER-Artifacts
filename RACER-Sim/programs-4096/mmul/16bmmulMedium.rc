@@ -1,0 +1,618 @@
+/*
+This microkernel perform a single 16-bit matrix-matrix multiply with dimension (64,5) = (384,5) x (64,384)
+The 16mmulMedium kernel is based on the 16mmulSmall kernel, as a kernel of a matrix multiply is a smaller
+matrix multiply. There are 2 ways to create the 16mmulMedium kernel based on the 16 mmulSmall kernel:
+For C = A x B with:
+
+ Easy (n) ---->         Hard (k) ---->
+  |  [c0 c1 c2]        [a0 a1 a2]      [b0 b1 b2]
+  |  [c3 c4 c5]    =   [a3 a4 a5]  *   [b3 b4 b5]
+  |  [c6 c7 c8]        [a6 a7 a8]      [b6 b7 b8]
+  V
+
+1) Easy Extension:
+  This method stacks multiple "C" matrices together on the n direction. Because
+  matrix multiply computation is independent on the n or m direction, it is easy.
+2) Hard Extension:
+  This method extends k direction, therefore any output c is the sum of partial
+  results, where each partial result is the output of smaller "C" matrix multiply
+
+(Consult resources on HPC matrix multiply for more information)
+
+We choose to perform Hard Extension on the 16mmulMedium kernel because the partial
+product summation requires moving partial results from one compute unit to another.
+Since all computation for this kernel happens within a cluster, cost of moving results
+is cheap. Later on, we can perform Easy Extension based on 16mmulMedium to create
+16mmulLarge kernel on the entire cluster. This way we don't have to do any expensive
+inter-cluster data movement.
+
+RACER stores a row of output C as a 64-vector (standard vectorize format)
+*/
+
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) There are 64 compute units, so k is multiplied by 64, m and n stays the same
+      as 16bmmulSmall.
+  (*) We can use the SHIFT instruction as a proxy to LLOAD, since it specifies
+      energy and latency cost anyway.
+  (*) The cost of data movement between compute unit is calculated as:
+      - Assume the chip clock period is 2.64 ns
+      - All power and latency number generated from verilog circuit level simulation
+      - Load Latency = 2 COPY (NOR) + 64 READ burst + 64 WRITE + 64 Cluster Wire Delay
+                     = 2 x 2.6405 + 64 x 2.64 + 64 x 2.64 + 64 x 1.438
+                     = 435.233 ns
+      - Load Energy  = Load Latency x Total Power
+                     = 435233 (ps) x 0.0079 (W)
+                     = 3438.3 (pJ)
+     - Because n = 5, we actually perform 5 LLOAD per each partial product data movement
+  (*) Each compute unit holds n = 5 partial result, each of which require k = 6 unique A-vectors
+  (*) k vectors are used to store B-vectors
+  (*) The ADD operation requires 7 intermediate values
+  (*) There are 16 vectors free to hold the partial results from other compute unit.
+      (These vectors were used as intermediate values required for the MAC operations)
+  (*) This means we can load 3 compute units in before during a partial summation
+*/
+
+
+// Calculate all partial results
+SETBULK 0 64 1
+
+// 12 <- 11 10 9 8 7 6
+MAC16 h0v12 b0v0 b0v6 1
+MAC16 h0v12 b0v1 b0v7 1
+MAC16 h0v12 b0v2 b0v8 1
+MAC16 h0v12 b0v3 b0v9 1
+MAC16 h0v12 b0v4 b0v10 1
+MAC16 h0v12 b0v5 b0v11 1
+
+// 19 <- 18 17 16 15 14 13
+MAC16 h0v19 b0v0 b0v13 1
+MAC16 h0v19 b0v1 b0v14 1
+MAC16 h0v19 b0v2 b0v15 1
+MAC16 h0v19 b0v3 b0v16 1
+MAC16 h0v19 b0v4 b0v17 1
+MAC16 h0v19 b0v5 b0v18 1
+
+// 26 <- 25 24 23 22 21 20
+MAC16 h0v26 b0v0 b0v20 1
+MAC16 h0v26 b0v1 b0v21 1
+MAC16 h0v26 b0v2 b0v22 1
+MAC16 h0v26 b0v3 b0v23 1
+MAC16 h0v26 b0v4 b0v24 1
+MAC16 h0v26 b0v5 b0v25 1
+
+// 33 <- 32 31 30 29 28 27
+MAC16 h0v33 b0v0 b0v27 1
+MAC16 h0v33 b0v1 b0v28 1
+MAC16 h0v33 b0v2 b0v29 1
+MAC16 h0v33 b0v3 b0v30 1
+MAC16 h0v33 b0v4 b0v31 1
+MAC16 h0v33 b0v5 b0v32 1
+
+// 40 <- 39 38 37 36 35 34
+MAC16 h0v40 b0v0 b0v34 1
+MAC16 h0v40 b0v1 b0v35 1
+MAC16 h0v40 b0v2 b0v36 1
+MAC16 h0v40 b0v3 b0v37 1
+MAC16 h0v40 b0v4 b0v38 1
+MAC16 h0v40 b0v5 b0v39 1
+UNSETALL
+
+SETBULK 0 1 1
+
+/* Partial Sum */
+// LLOAD compute unit 1 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 2 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 3 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 4 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 5 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 6 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 7 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 8 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 9 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 10 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 11 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 12 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 13 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 14 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 15 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 16 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 17 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 18 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 19 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 20 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 21 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 22 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 23 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 24 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 25 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 26 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 27 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 28 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 29 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 30 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 31 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 32 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 33 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 34 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 35 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 36 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 37 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 38 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 39 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 40 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 41 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 42 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 43 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 44 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 45 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 46 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 47 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 48 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 49 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 50 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 51 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 52 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 53 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 54 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 55 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 56 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 57 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+/* Partial Sum */
+// LLOAD compute unit 58 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 59 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 60 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+UNSETALL
+
+/* Partial Sum */
+// LLOAD compute unit 60 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 61 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+// LLOAD compute unit 62 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+// LLOAD compute unit 63 into 0
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+SHIFT 435.233 3438.3
+
+ADD16 x x x 15 1
+
+UNSETALL

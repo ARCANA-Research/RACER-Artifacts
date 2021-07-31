@@ -1,0 +1,20 @@
+/*
+This layer reformat the data before doing conv2
+Due to its complex nature, the entire conversion step is now shown.
+*/
+
+SETBULK 0 1 1
+
+// Move reduction results to a new cluster
+SHIFT 20376.577 957699.119
+SHIFT 20376.577 957699.119
+SHIFT 20376.577 957699.119
+SHIFT 20376.577 957699.119
+SHIFT 20376.577 957699.119
+
+// Conversion
+SHIFT 14786.8 4587.52
+
+// Replicate 120 times for 120 channels
+SHIFT 87375 1289362.5
+UNSETALL

@@ -1,0 +1,36 @@
+/*
+This kernel string match 8192 strings of 64 characters each
+
+Exact match can be think og in term of matrix-vector multiply, where the semiring
+definition is * = CAM and + = POPC
+
+  (*) The input and output vector length should be the same => square matrix
+
+  (*)  Each ouput vector needs
+      - 7 vectors used for intermediate values (64 - 7 = 57)
+      - Each output requires 2n inputs and n matches for the total of 3n + 1
+      => n = 18
+      => 4 engines per match program
+
+  (*) A single 64-bit vector SHIFT (latch into buffer, latch from buffer) has a
+      cost of (taken from device-level simulation of a LATCH operation):
+         - Latency = 2 x 5.281 = 10.562 (ns)
+         - Energy  = 2 x 1.6384 = 3.2768 (pJ)
+      The SHIFT cost can be calculated accordingly
+*/
+
+SETBULK 0 4096 64
+CAM8 x x x 18 4
+ADD8 x x x 18 4
+UNSETALL
+
+SETBULK 0 1 1
+SHIFT 4309.296 20615843.0208
+SHIFT 2872.864 13743895.3472
+SHIFT 1436.432 429496.7296
+UNSETALL
+
+
+SETBULK 0 4096 64
+ADD8 x x x 4 2
+UNSETALL

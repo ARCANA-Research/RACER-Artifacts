@@ -1,0 +1,25 @@
+/* This kernel is 1 iteration of the 16bbubblesortsmall.rc kernel*/
+/*
+  (*) This is an element-wise microkernel.
+  (*) Each engine can store 9 elements:
+        - 7 vectors store intermediate values (64 - 7 = 57)
+        - Each comparison produces 2 output, requires 2 input, 1 intermediate addition result,
+        1 decider, total of 6 (57 / 6 = 9)
+  (*) Because it is 16-bit comparison, there can be 4 engines in each multiword
+  (*) Each engine can sort independently, then share the max and min element
+      with neighboring engines
+
+  (*)  A single 1-bit SHIFT (latch into buffer, latch from buffer) has a
+      cost of (taken from device-level simulation of a LATCH operation):
+         - Latency = 2 x 5.281 = 10.562 (ns)
+         - Energy  = 2 x 1.6384 = 3.2768 (pJ)
+*/
+SETBULK 0 1 1
+BINSORT16 x x x x 10 1
+SHIFT 168.992 838.8608
+BINSORT16 x x x x 10 1
+SHIFT 168.992 838.8608
+BINSORT16 x x x x 10 1
+SHIFT 168.992 838.8608
+BINSORT16 x x x x 10 1
+UNSETALL

@@ -1,0 +1,136 @@
+/*
+This microkernel convolute K (8-bit 2x2 matrix) with 4096 images,
+each image is 8-bit 128x128 matrix
+
+1) Convolutional Kernel Data Layout:
+  assume we have the following kernel:
+  K = [1 2]
+      [3 4]
+  RACER stores it in a compute unit using 4 64-vectors:
+  v3 v2 v1 v0
+  4  3  2  1
+  4  3  2  1
+  4  3  2  1
+  .
+  .
+  .
+  4  3  2  1
+
+2) Image Data Layout:
+  assume we have the following 4x4 example zero-padded image:
+  I = [a b c d 0]
+      [e f g h 0]
+      [i j k l 0]
+      [m n o p 0]
+      [0 0 0 0 0]
+  RACER stores it in a compute unit using 4 64-vectors:
+  v7 v6 v5 v4
+  a  b  e  f
+  b  c  f  g
+  c  d  g  h
+  d  0  h  0
+  .
+  .
+  .
+  (This is a modified Z format)
+
+3) Example Execution
+  assume the output is:
+  C = [a b c d]
+      [e f g h]
+      [i j k l]
+      [m n o p]
+  RACER stores C using 1 64-vector:
+  v8
+  a
+  b
+  c
+  d
+  .
+  .
+  .
+  To do C = I conv K:
+  MAC16 h0v8 b0v7 b0v0
+  MAC16 h0v8 b0v6 b0v1
+  MAC16 h0v8 b0v5 b0v2
+  MAC16 h0v8 b0v4 b0v3
+
+*/
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) Turn on all 4096 clusters to convolve 4096 images (1 cluster per image)
+  (*) Each cluster turns on 8 compute units. This is because:
+      With capacity of 64 vectors:
+        - 4 vectors store 2x2 Kernel (64 - 4 = 60)
+        - 20 vectors store intermediate values (60 - 20 = 40)
+        - Each conv output requires 4 conv input, total of 5 (40 / 5 = 8)
+        -> 8 vectors storing output, each has 64 bits (8 * 64 = 512)
+        -> One compute unit can perform 4 MAC16 in parallel (512 * 4 = 2048)
+        - Each image is 16384 (128x128) bits so need 8 compute unit (16384 / 2048 = 8)
+  (*) The conv output is stored in Z-format order
+  (*) The last argument of all compute instruction is a simulated-level argument,
+      and it represents an energy multiplicative factor. Because a multiword can
+      be broken down into multiple compute engine doing the same thing, the multiplicative
+      factor is a quick way to calculate the energy consumption of multiple engines.
+      Because all engines operate in parallel, there is not equivalent factor for latency.
+*/
+
+// TODO Change this to a for loop
+SETBULK 0 4096 64
+SETBULK 1 4096 64
+SETBULK 2 4096 64
+SETBULK 3 4096 64
+SETBULK 4 4096 64
+SETBULK 5 4096 64
+SETBULK 6 4096 64
+SETBULK 7 4096 64
+
+// 8 <- 7 6 5 4
+MAC16 h0v8 b0v7 b0v0 4
+MAC16 h0v8 b0v6 b0v1 4
+MAC16 h0v8 b0v5 b0v2 4
+MAC16 h0v8 b0v4 b0v3 4
+
+// 13 <- 12 11 10 9
+MAC16 h0v13 b0v9 b0v0 4
+MAC16 h0v13 b0v10 b0v1 4
+MAC16 h0v13 b0v11 b0v2 4
+MAC16 h0v13 b0v12 b0v3 4
+
+// 18 <-17 16 15 14
+MAC16 h0v18 b0v14 b0v0 4
+MAC16 h0v18 b0v15 b0v1 4
+MAC16 h0v18 b0v16 b0v2 4
+MAC16 h0v18 b0v17 b0v3 4
+
+// 23 <-22 21 20 19
+MAC16 h0v23 b0v22 b0v0 4
+MAC16 h0v23 b0v21 b0v1 4
+MAC16 h0v23 b0v20 b0v2 4
+MAC16 h0v23 b0v19 b0v3 4
+
+// 28 <-27 26 25 24
+MAC16 h0v23 b0v22 b0v0 4
+MAC16 h0v23 b0v21 b0v1 4
+MAC16 h0v23 b0v20 b0v2 4
+MAC16 h0v23 b0v19 b0v3 4
+
+// 33 <-32 31 30 29
+MAC16 h0v23 b0v22 b0v0 4
+MAC16 h0v23 b0v21 b0v1 4
+MAC16 h0v23 b0v20 b0v2 4
+MAC16 h0v23 b0v19 b0v3 4
+
+// 38 <-37 36 35 34
+MAC16 h0v23 b0v22 b0v0 4
+MAC16 h0v23 b0v21 b0v1 4
+MAC16 h0v23 b0v20 b0v2 4
+MAC16 h0v23 b0v19 b0v3 4
+
+// 43 <-42 41 40 39
+MAC16 h0v23 b0v22 b0v0 4
+MAC16 h0v23 b0v21 b0v1 4
+MAC16 h0v23 b0v20 b0v2 4
+MAC16 h0v23 b0v19 b0v3 4
+
+UNSETALL

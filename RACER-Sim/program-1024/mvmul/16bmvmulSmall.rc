@@ -1,0 +1,69 @@
+/*
+This microkernel perform a single 16-bit matrix-vector multiply with dimension (64) = (64,21) x (21)
+The most optimal way to perform 1 mmul per compute unit is to
+exclusively use MAC (no data transfer)
+
+For C = A x b with:
+
+C = [c0] ^
+    [c1] | n
+    [c2] v
+
+         m
+    < ------ >
+A = [a0 a1 a2] ^
+    [a3 a4 a5] | n
+    [a6 a7 a8] v
+
+B = [b0] ^
+    [b1] | m
+    [b2] v
+
+c0 = a0b0 + a1b1 + a2b2
+c1 = a3b0 + a4b1 + a5b2
+c2 = a6b0 + a7b1 + a8b2
+
+RACER stores C as a 64-vector (standard vectorize format)
+*/
+
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) By construction, n = 64
+  (*) Each compute unit can perform mvmul with dimension (64) = (64,21) x (21). This is
+      because:
+      With capacity of 64 vectors:
+        - 20 vectors store intermediate values (64 - 20 = 44)
+        - Each output vector requires unique m A-vectors
+        - The entire computation reuse m B-vectors
+        -> m vectors store B-vectors (44 - m)
+        -> m vectors store A-vectors (44 - 2m)
+        -> 1 vector store C (44 - 2m - 1)
+        - Optimize for m so that 44 - 2m - 1 = 0
+        -> m = 21
+*/
+
+SETBULK 0 1 1
+
+MAC16 h0v42 b0v21 b0v0 1
+MAC16 h0v42 b0v22 b0v1 1
+MAC16 h0v42 b0v23 b0v2 1
+MAC16 h0v42 b0v24 b0v3 1
+MAC16 h0v42 b0v25 b0v4 1
+MAC16 h0v42 b0v26 b0v5 1
+MAC16 h0v42 b0v27 b0v6 1
+MAC16 h0v42 b0v28 b0v7 1
+MAC16 h0v42 b0v29 b0v8 1
+MAC16 h0v42 b0v30 b0v9 1
+MAC16 h0v42 b0v31 b0v10 1
+MAC16 h0v42 b0v32 b0v11 1
+MAC16 h0v42 b0v33 b0v12 1
+MAC16 h0v42 b0v34 b0v13 1
+MAC16 h0v42 b0v35 b0v14 1
+MAC16 h0v42 b0v36 b0v15 1
+MAC16 h0v42 b0v37 b0v16 1
+MAC16 h0v42 b0v38 b0v17 1
+MAC16 h0v42 b0v39 b0v18 1
+MAC16 h0v42 b0v40 b0v19 1
+MAC16 h0v42 b0v41 b0v20 1
+
+UNSETALL

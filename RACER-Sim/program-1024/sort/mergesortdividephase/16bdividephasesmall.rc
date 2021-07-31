@@ -1,0 +1,5 @@
+// Sort 4 sets of 10 elements
+
+SETBULK 0 1 1
+BINSORT16 x x x 100 4
+UNSETALL

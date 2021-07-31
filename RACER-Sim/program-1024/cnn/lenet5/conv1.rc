@@ -1,0 +1,230 @@
+/*
+(*) Semiring: (ADD8, MUL8)
+(*) 1 LLOAD cost:
+       - Latency = 2 COPY (NOR) + 64 READ burst + 64 WRITE + 64 Cluster Wire Delay
+                     = 2 x 2.6405 + 64 x 2.64 + 64 x 2.64 + 64 x 1.438
+                     = 435.233 (ns)
+       - Energy  = Load Latency x Total Power
+                     = 435233 (ps) x 0.0079 (W)
+                     = 3438.3 (pJ)
+
+(*)  A single 1-bit SHIFT (latch into buffer, latch from buffer) has a
+    cost of (taken from device-level simulation of a LATCH operation):
+       - Latency = 2 x 5.281 = 10.562 (ns)
+       - Energy  = 2 x 1.6384 = 3.2768 (pJ)
+
+(*) Each output pixels need to gather partial product from 6 multiwords,
+each multiwords contains 8 partial results:
+      - Intra-Multiword Data Movement:
+        Latency = 63 (multiwords) x 56 x SHIFT
+                = 3528 x SHIFT
+                = 3528 X 10.562
+                = 37262.736 (ns)
+        Energy  = 63 (multiwords) x 7 (clusters) x 8 (8-bit precision)
+                  x 8 (8 tiles per engine)
+                  x (7 + 6 + 5 + 4 + 3 + 2 + 1)
+                  (different # engines traveled by different partial product)
+                = 790272 x SHIFT
+                = 790272 x 3.2768
+                = 2589563.2 (pJ)
+      - Inter-Multiword Data Movement:
+        Latency = 6 (multiwords per pixel) x 10 (64-pixel vector per cluster) x SHIFT
+                =  6 x 10 x 435.233
+                = 26113.98 (ns)
+        Energy  = 7 (clusters) x 6 (multiwords per pixel) x 10 (64-pixel vector per cluster) x SHIFT
+                = 7 x 6 x 10 x 3438.3
+                = 1444086 (pJ)
+
+*/
+
+// Patrial Results Generation ==================================================
+SETBULK 0 7 64
+SETBULK 1 7 64
+SETBULK 2 7 64
+SETBULK 3 7 64
+SETBULK 4 7 64
+SETBULK 5 7 64
+SETBULK 6 7 64
+SETBULK 7 7 64
+SETBULK 8 7 64
+SETBULK 9 7 64
+SETBULK 10 7 64
+SETBULK 11 7 64
+SETBULK 12 7 64
+SETBULK 13 7 64
+SETBULK 14 7 64
+SETBULK 15 7 64
+SETBULK 16 7 64
+SETBULK 17 7 64
+SETBULK 18 7 64
+SETBULK 19 7 64
+SETBULK 20 7 64
+SETBULK 21 7 64
+SETBULK 22 7 64
+SETBULK 23 7 64
+SETBULK 24 7 64
+SETBULK 25 7 64
+SETBULK 26 7 64
+SETBULK 27 7 64
+SETBULK 28 7 64
+SETBULK 29 7 64
+SETBULK 30 7 64
+SETBULK 31 7 64
+SETBULK 32 7 64
+SETBULK 33 7 64
+SETBULK 34 7 64
+SETBULK 35 7 64
+SETBULK 36 7 64
+SETBULK 37 7 64
+SETBULK 38 7 64
+SETBULK 39 7 64
+SETBULK 40 7 64
+SETBULK 41 7 64
+SETBULK 42 7 64
+SETBULK 43 7 64
+SETBULK 44 7 64
+SETBULK 45 7 64
+SETBULK 46 7 64
+SETBULK 47 7 64
+SETBULK 48 7 64
+SETBULK 49 7 64
+SETBULK 50 7 64
+SETBULK 51 7 64
+SETBULK 52 7 64
+SETBULK 53 7 64
+SETBULK 54 7 64
+SETBULK 55 7 64
+SETBULK 56 7 64
+SETBULK 57 7 64
+SETBULK 58 7 64
+SETBULK 59 7 64
+SETBULK 60 7 64
+SETBULK 61 7 64
+SETBULK 62 7 64
+
+MAC8 h0v42 b0v21 b0v0 8
+MAC8 h0v42 b0v22 b0v1 8
+MAC8 h0v42 b0v23 b0v2 8
+MAC8 h0v42 b0v24 b0v3 8
+MAC8 h0v42 b0v25 b0v4 8
+
+MAC8 h0v42 b0v21 b0v5 8
+MAC8 h0v42 b0v22 b0v6 8
+MAC8 h0v42 b0v23 b0v7 8
+MAC8 h0v42 b0v24 b0v8 8
+MAC8 h0v42 b0v25 b0v9 8
+
+MAC8 h0v42 b0v21 b0v10 8
+MAC8 h0v42 b0v22 b0v11 8
+MAC8 h0v42 b0v23 b0v12 8
+MAC8 h0v42 b0v24 b0v13 8
+MAC8 h0v42 b0v25 b0v14 8
+
+MAC8 h0v42 b0v21 b0v15 8
+MAC8 h0v42 b0v22 b0v16 8
+MAC8 h0v42 b0v23 b0v17 8
+MAC8 h0v42 b0v24 b0v18 8
+MAC8 h0v42 b0v25 b0v19 8
+
+MAC8 h0v42 b0v21 b0v20 8
+MAC8 h0v42 b0v22 b0v21 8
+MAC8 h0v42 b0v23 b0v22 8
+MAC8 h0v42 b0v24 b0v23 8
+MAC8 h0v42 b0v25 b0v24 8
+
+UNSETALL
+
+// Intra-Multiword Data Movement and Summation =================================
+SETBULK 0 1 1
+SHIFT 37262.736 2589563.2
+UNSETALL
+
+SETBULK 0 7 64
+SETBULK 1 7 64
+SETBULK 2 7 64
+SETBULK 3 7 64
+SETBULK 4 7 64
+SETBULK 5 7 64
+SETBULK 6 7 64
+SETBULK 7 7 64
+SETBULK 8 7 64
+SETBULK 9 7 64
+SETBULK 10 7 64
+SETBULK 11 7 64
+SETBULK 12 7 64
+SETBULK 13 7 64
+SETBULK 14 7 64
+SETBULK 15 7 64
+SETBULK 16 7 64
+SETBULK 17 7 64
+SETBULK 18 7 64
+SETBULK 19 7 64
+SETBULK 20 7 64
+SETBULK 21 7 64
+SETBULK 22 7 64
+SETBULK 23 7 64
+SETBULK 24 7 64
+SETBULK 25 7 64
+SETBULK 26 7 64
+SETBULK 27 7 64
+SETBULK 28 7 64
+SETBULK 29 7 64
+SETBULK 30 7 64
+SETBULK 31 7 64
+SETBULK 32 7 64
+SETBULK 33 7 64
+SETBULK 34 7 64
+SETBULK 35 7 64
+SETBULK 36 7 64
+SETBULK 37 7 64
+SETBULK 38 7 64
+SETBULK 39 7 64
+SETBULK 40 7 64
+SETBULK 41 7 64
+SETBULK 42 7 64
+SETBULK 43 7 64
+SETBULK 44 7 64
+SETBULK 45 7 64
+SETBULK 46 7 64
+SETBULK 47 7 64
+SETBULK 48 7 64
+SETBULK 49 7 64
+SETBULK 50 7 64
+SETBULK 51 7 64
+SETBULK 52 7 64
+SETBULK 53 7 64
+SETBULK 54 7 64
+SETBULK 55 7 64
+SETBULK 56 7 64
+SETBULK 57 7 64
+SETBULK 58 7 64
+SETBULK 59 7 64
+SETBULK 60 7 64
+SETBULK 61 7 64
+SETBULK 62 7 64
+
+ADD8 x x x 8 1
+
+UNSETALL
+
+// Inter-Multiwords Data Movement and Summation ================================
+SETBULK 0 1 1
+SHIFT 26113.98 1444086
+UNSETALL
+
+SETBULK 0 7 64
+SETBULK 6 7 64
+SETBULK 12 7 64
+SETBULK 18 7 64
+SETBULK 30 7 64
+SETBULK 36 7 64
+SETBULK 42 7 64
+SETBULK 48 7 64
+SETBULK 54 7 64
+SETBULK 60 7 64
+SETBULK 61 7 64
+SETBULK 62 7 64
+
+ADD8 x x x 6 1
+
+UNSETALL

@@ -1,0 +1,50 @@
+/*
+This microkernel perform 16-bit max pooling on 16384 128x128 images with 2x2 kernel
+
+See 16bmaxpool2x2.rc for general setup
+*/
+
+/*============================= MAIN PROGRAM =================================*/
+/*
+  (*) Each cluster turns on 22 compute units. This is because:
+      With capacity of 64 vectors:
+        - 7 vectors store intermediate values (64 - 7 = 57)
+        - Each maxpool output requires 9 input, 4 intermediate candidates,
+        7 deciders, total of 19 (57/19 = 3)
+        -> 3 vectors storing output, each has 64 bits (3 * 64 = 192)
+        -> One compute unit can perform 4 MAXMIN in parallel (192 * 4 = 768)
+        - Each image is 16384 (128 x 128) bits so need 13 compute unit (16384 / 768 = 22)
+  (*) The output is stored in Z-format order
+  (*) The last argument of all compute instruction is a simulated-level argument,
+    and it represents an energy multiplicative factor. Because a multiword can
+    be broken down into multiple compute engine doing the same thing, the multiplicative
+    factor is a quick way to calculate the energy consumption of multiple engines.
+    Because all engines operate in parallel, there is not equivalent factor for latency.
+
+*/
+
+SETBULK 0 4096 64
+SETBULK 1 4096 64
+SETBULK 2 4096 64
+SETBULK 3 4096 64
+SETBULK 4 4096 64
+SETBULK 5 4096 64
+SETBULK 6 4096 64
+SETBULK 7 4096 64
+SETBULK 8 4096 64
+SETBULK 9 4096 64
+SETBULK 10 4096 64
+SETBULK 11 4096 64
+SETBULK 12 4096 64
+SETBULK 13 4096 64
+SETBULK 14 4096 64
+SETBULK 15 4096 64
+SETBULK 16 4096 64
+SETBULK 17 4096 64
+SETBULK 18 4096 64
+SETBULK 19 4096 64
+SETBULK 20 4096 64
+SETBULK 21 4096 64
+
+9MAXMIN16 x x x x 3 4
+UNSETALL

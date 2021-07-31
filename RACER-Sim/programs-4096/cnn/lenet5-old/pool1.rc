@@ -1,0 +1,16 @@
+/*
+This is the pooling layer #1 for the LeNet-5 CNN.
+(*) The kernel is 2x2, with stride = 2
+(*) Input Dim: 28x28x6 Output Dim: 14x14x6
+(*) Input and output is vectorized and is stored on a single row of a vector in
+    RAPID -> By construction the kernel has batch size of 64
+(*) Each compute unit engine (8 tiles) can produce 18 outputs because:
+    - 7 vectors store intermediate values (64 - 7 = 57)
+    - Let number of outputs be n
+    - Each output requires 4 unique inputs
+    -> n = 11
+*/
+SETBULK 4146 6 64
+SETBULK 4147 6 64
+4MAXMIN8 x x x x x 11 8
+UNSETALL

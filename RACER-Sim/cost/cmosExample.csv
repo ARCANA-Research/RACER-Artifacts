@@ -1,0 +1,8 @@
+localMemBusPackageSize,512
+localMemBusLatency,40
+localMemBusTransferEnergy,100
+localMemBusSize,64000000000
+globalMemBusPackageSize,1024
+globalMemBusLatency,400
+globalMemBusTransferEnergy,1000
+globalMemBusSize,64000000000
