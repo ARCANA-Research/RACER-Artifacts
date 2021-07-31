@@ -1,0 +1,28 @@
+/*
+(*) 1 LLOAD cost:
+       - Latency = 2 COPY (NOR) + 64 READ burst + 64 WRITE + 64 Cluster Wire Delay
+                     = 2 x 2.6405 + 64 x 2.64 + 64 x 2.64 + 64 x 1.438
+                     = 435.233 (ns)
+       - Energy  = Load Latency x Total Power
+                     = 435233 (ps) x 0.0079 (W)
+                     = 3438.3 (pJ)
+
+(*)  A single 1-bit SHIFT (latch into buffer, latch from buffer) has a
+    cost of (taken from device-level simulation of a LATCH operation):
+       - Latency = 2 x 5.281 = 10.562 (ns)
+       - Energy  = 2 x 1.6384 = 3.2768 (pJ)
+
+(*) Pool1 requires 7 multiwords, so we just need
+to move conv1 output and transpose it, then put it in new 7 clusters.
+Because conv2 only need 3 clusters, we need to move half of the inputs upward
+
+(*) Each clusters contains 8 64-vector of conv2 output, each occupies 6 multiwords:
+    - Horizontal Inter-Cluster Data Movement:
+      Latency = 2 x 6 (64-vector from relu2) x SHIFT
+              = 2 x 6 x 435.233  = 5222.796 (ns)
+      Energy  = 2 x 6 (64-vector from relu1) x 1 (clusters) x SHIFT
+              = 2 x 6 x 1 x 3438.3 = 41259.6 (pJ)
+*/
+SETBULK 0 1 1
+SHIFT 12 12
+UNSETALL

@@ -1,6 +1,0 @@
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step1.rc
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step2.rc
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step3.rc
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step4.rc
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step5.rc
-IMPORT /home/minh/git/racer-microbenchmark/programs/pagerank/step6.rc
