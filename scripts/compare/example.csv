@@ -1,4 +1,4 @@
-microbenchmark,racer dynamic energy,racer total latency,baseline cycle time,dram average power,interconnect throughput,core power,l3 power,noc power
+microbenchmark,racer dynamic energy(J),racer total latency(ms),baseline cycle (#cycles),dram average power(W),interconnect throughput(GB/s),core power(W),l3 power(W),noc power(W)
 brightness,0.005,0.08,143000000,2.019,5.55564,72.691,5.453,0.059
 rgb2gray,0.019,3.498,145000000,1.999,5.482355388,73.144,5.453,0.079
 mmul,0.187,32.186,204000000,0.606,0.3243967828,74.216,5.453,0.054
