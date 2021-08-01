@@ -1,4 +1,4 @@
-MIT License for RACER-Sim
+MIT License
 
 Copyright (c) 2021 ARCANA Research Group at the University of Illinois Urbana-Champaign
 
@@ -19,24 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-MARSSx86
-
-* Copyright (c) 2010 Avadh Patel and the Computer Architecture Group of SUNY Binghamton
-* Released under the GNU General Public License version 2 (see http://www.marss86.org/~marss86/index.php/FAQ)
-
----
-
-DRAMSim2
-
-* Copyright (c) 2010-2011 Elliott Cooper-Balis, Paul Rosenfeld, and Bruce Jacob (University of Maryland)
-* Released under the 2-Clause BSD License (see file headers in marss-cpu/DRAMSim2/)
-
----
-
-McPAT
-
-* Copyright (c) 2012 Hewlett-Packard Development Company, L.P.
-* Released under the 3-Clause BSD License (see file headers in mcpat/)
