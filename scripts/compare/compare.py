@@ -4,7 +4,7 @@ from scipy.stats.mstats import gmean
 CPUCLKFREQ = 2200000000
 TECHSCALE = 1.5
 GBS2WATT = 0.175
-RACER4096LEAKAGEPOWER = 3.3
+RACER4096LEAKAGEPOWER = 3.301
 RACER1024LEAKAGEPOWER = 0.825
 #############################CALCULATE SPEEDUPS##################################
 racerlat = []
@@ -17,10 +17,9 @@ with open("./example.csv") as f:
         cpulat.append(float(line.split(',')[3])/(CPUCLKFREQ)*1000) #milisecond
 
 for i in range(len(racerlat)):
-    print(cpulat[i])
     speedup.append(cpulat[i]/racerlat[i])
 
-print("Geo. Mean Speedup is %dx"%round(gmean(speedup)))
+print("Geo. Mean Speedup is %dx"%(round(gmean(speedup))))
 #############################CALCULATE ENERGY SAVINGS############################
 racertotalenergy = []
 cputotalpower = []
@@ -45,7 +44,6 @@ with open("./example.csv") as f:
         cputotalpower.append(_totalpower)
 
 for i in range(len(racertotalenergy)):
-    print((cpulat[i]/1000*cputotalpower[i]))
     energysaving.append((cpulat[i]/1000*cputotalpower[i])/racertotalenergy[i])
 
-print("Geo. Mean Energy Saving is %dx"%round(gmean(energysaving)))
+print("Geo. Mean Energy Saving is %dx"%(round(gmean(energysaving))))
