@@ -1,0 +1,9 @@
+-logfile test.log
+#-run
+-corefreq 2200000000
+-machine xeon_platinum_8253
+-stats test.yml
+#-kill-after-run -quiet
+-dramsim-device-ini-file ini/DDR3L_128M_8B_x8.ini
+-dramsim-system-ini-file system.ini.example
+-dramsim-results-dir-name justATest

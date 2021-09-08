@@ -9,12 +9,12 @@ import sys
 cwd = os.getcwd()
 qemu_bin = '%s/qemu/qemu-system-x86_64' % cwd
 # qemu_img = '/home/avadh/workspace/vm/spec2006_2.qcow2'
-qemu_img = 'please change this to disk image location'
+qemu_img ='points to where ubuntu-natty.qcow2 is located'
 # qemu_img = '/var/work/vm/splash_4core.qcow2'
 vm_memory = '8G'
 qemu_cmd = ''
 vm_smp = 4
-simconfig = 'please point this to the full path of marss.dramsim/run.simcfg'
+simconfig ='points to where marss-cpu/marss.dramsim/run.simcfg is located'
 
 def add_to_cmd(opt):
     global qemu_cmd
@@ -42,156 +42,156 @@ bench='brightness'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./brightness.exe 4096"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='rgb2gray'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./rgb2gray.exe 4096"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='mmul'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./mmul.exe 20480 384"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='mvmul'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./mvmul.exe 1344 1048576"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='pagerank'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./pagerank.exe 32768 32768 9"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='dftSparse'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./dft.exe 4096 64 64"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='dftDense'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./dft.exe 1 16384 16384"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='manhattan'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./manhattan.exe 9437184"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='hamming'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./hamming.exe 15204352"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='lenet'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./lenet.exe "
+cmd = "./lenet.exe 85"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='grep'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./grep.exe 16 58720256"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='exactMatch'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./exactMatch.exe 256"
+cmd = "./exactMatch.exe 8192 256"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='fuzzyMatch'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./fuzzyMatch.exe 256"
+cmd = "./fuzzyMatch.exe 8192 256"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 # ======================= RACER's Baseline2G ===================================
 bench='2Gbrightness'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./brightness.exe 1024"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Grgb2gray'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./rgb2gray.exe 1024"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Gmmul'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./mmul.exe 5120 384"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Gmvmul'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./mvmul.exe 1344 262144"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Gpagerank'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./pagerank.exe 16384 16384 9"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2GdftSparse'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./dft.exe 1024 64 64"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2GdftDense'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./dft.exe 1 1 9216 9216"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Gmanhattan'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./manhattan.exe 2359296"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Ghamming'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./hamming.exe 3801088"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Glenet'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./lenet.exe "
+cmd = "./lenet.exe 20"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2Ggrep'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
 cmd = "./grep.exe 16 14689964"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
-check_list.append(bench_dict)
+#check_list.append(bench_dict)
 
 bench='2GexactMatch'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./exactMatch.exe 256"
+cmd = "./exactMatch.exe 2048 256"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
 check_list.append(bench_dict)
 
 bench='2GfuzzyMatch'
 pre_command = "export CHECKPOINT_NAME=\"%s\"\n" %(bench)
-cmd = "./fuzzyMatch.exe 256"
+cmd = "./fuzzyMatch.exe 2048 256"
 bench_dict = {'name' : bench, 'command' : '%s\n%s\n' % (pre_command, cmd)}
 check_list.append(bench_dict)
 
